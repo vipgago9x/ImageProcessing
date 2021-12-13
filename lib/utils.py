@@ -753,7 +753,7 @@ def reformat_input(image):
         img_cv_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     else:
         raise ValueError(
-            'Invalid input type. Supporting format = string(file path or url), bytes, numpy array')
+            'Invalid input type.')
 
     return img, img_cv_grey
 
@@ -817,11 +817,11 @@ def set_result_with_confidence(result_list, origin_len):
     for i in range(origin_len):
         # format : ([[,],[,],[,],[,]], 'string', confidnece)
         result = result_to_split[0][i]
-        confidence = result_to_split[0][i][2]
+        _ = result_to_split[0][i][2]
         for rot in range(1, set_len):
             if (result_to_split[rot] and len(result_to_split[rot][i][1]) >= len(result[1])):
                 result = result_to_split[rot][i]
-                confidence = result_to_split[rot][i][2]
+                _ = result_to_split[rot][i][2]
 
         final_result.append(result)
 

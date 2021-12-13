@@ -69,31 +69,7 @@ class Detector(object):
 
         model_path = os.path.join(
             self.model_storage_directory, model['filename'])
-        # check recognition model file
-        if recognizer:
-            if os.path.isfile(model_path) == False:
-                if not self.download_enabled:
-                    raise FileNotFoundError(
-                        "Missing %s and downloads disabled" % model_path)
-                LOGGER.warning('Downloading recognition model, wait. ')
-                download_and_unzip(
-                    model['url'], model['filename'], self.model_storage_directory, verbose)
-                assert calculate_md5(
-                    model_path) == model['filesize'], corrupt_msg
-                LOGGER.info('Complete.')
-            elif calculate_md5(model_path) != model['filesize']:
-                if not self.download_enabled:
-                    raise FileNotFoundError(
-                        "MD5 mismatch for %s and downloads disabled" % model_path)
-                LOGGER.warning(corrupt_msg)
-                os.remove(model_path)
-                LOGGER.warning('Re-downloading the recognition model, please wait. '
-                               'This may take several minutes depending upon your network connection.')
-                download_and_unzip(
-                    model['url'], model['filename'], self.model_storage_directory, verbose)
-                assert calculate_md5(
-                    model_path) == model['filesize'], corrupt_msg
-                LOGGER.info('Download complete')
+
         self.set_language_list(lang_list, model)
 
         dict_list = {}
@@ -104,20 +80,11 @@ class Detector(object):
             self.detector = get_detector(
                 detector_path, self.device, quantize, cudnn_benchmark=cudnn_benchmark)
         if recognizer:
-            if recog_network == 'generation1':
-                network_params = {
-                    'input_channel': 1,
-                    'output_channel': 512,
-                    'hidden_size': 512
-                }
-            elif recog_network == 'generation2':
-                network_params = {
-                    'input_channel': 1,
-                    'output_channel': 256,
-                    'hidden_size': 256
-                }
-            else:
-                pass
+            network_params = {
+                'input_channel': 1,
+                'output_channel': 256,
+                'hidden_size': 256
+            }
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,
                                                              self.character, separator_list,
                                                              dict_list, model_path, device=self.device, quantize=quantize)
